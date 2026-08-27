@@ -1,0 +1,10 @@
+spring:
+  jpa:
+    show-sql: true
+  flyway:
+    clean-disabled: false
+
+logging:
+  level:
+    br.com.video2frames.video2frames_auth_service: DEBUG
+    org.springframework.security: DEBUG

@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: auth-service
+  profiles:
+    active: dev
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/authdb}
+    username: ${DB_USER:authdb}
+    password: ${DB_PASSWORD:authdb}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+server:
+  port: ${SERVER_PORT:8081}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:mDMUd7hxqi87Jab3PEoexGDbKUqx548RyntWmtrZJqJ}
+    access-token-expiration-minutes: ${JWT_ACCESS_EXPIRATION_MINUTES:15}
+    refresh-token-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:7}
