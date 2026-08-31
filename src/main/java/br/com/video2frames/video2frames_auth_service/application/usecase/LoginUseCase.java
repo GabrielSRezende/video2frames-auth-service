@@ -7,8 +7,10 @@ import br.com.video2frames.video2frames_auth_service.application.service.TokenIs
 import br.com.video2frames.video2frames_auth_service.domain.exception.InvalidCredentialsException;
 import br.com.video2frames.video2frames_auth_service.domain.model.User;
 import br.com.video2frames.video2frames_auth_service.domain.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class LoginUseCase {
 
@@ -24,12 +26,17 @@ public class LoginUseCase {
 
     public AuthResult execute(LoginCommand command) {
         User user = userRepository.findByEmail(command.email())
-                .orElseThrow(() -> new InvalidCredentialsException("E-mail ou senha incorretos"));
+                .orElseThrow(() -> {
+                    log.warn("Tentativa de login com e-mail não cadastrado: {}", command.email());
+                    return new InvalidCredentialsException("E-mail ou senha incorretos");
+                });
 
         if (!passwordHasher.matches(command.rawPassword(), user.getPasswordHash())) {
+            log.warn("Tentativa de login com senha incorreta para o e-mail: {}", command.email());
             throw new InvalidCredentialsException("E-mail ou senha incorretos");
         }
 
+        log.info("Usuário autenticado com sucesso: {}", command.email());
         return tokenIssuer.issueFor(user);
     }
 }

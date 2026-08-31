@@ -8,8 +8,10 @@ import br.com.video2frames.video2frames_auth_service.domain.model.RefreshToken;
 import br.com.video2frames.video2frames_auth_service.domain.model.User;
 import br.com.video2frames.video2frames_auth_service.domain.repository.RefreshTokenRepository;
 import br.com.video2frames.video2frames_auth_service.domain.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class RefreshTokenUseCase {
 
@@ -31,9 +33,13 @@ public class RefreshTokenUseCase {
 
     public AuthResult execute(String rawRefreshToken) {
         RefreshToken stored = refreshTokenRepository.findByTokenHash(tokenHasher.hash(rawRefreshToken))
-                .orElseThrow(() -> new InvalidCredentialsException("Refresh token inválido"));
+                .orElseThrow(() -> {
+                    log.warn("Tentativa de refresh com token desconhecido");
+                    return new InvalidCredentialsException("Refresh token inválido");
+                });
 
         if (!stored.isValid()) {
+            log.warn("Tentativa de refresh com token expirado ou revogado para o usuário: {}", stored.getUserId());
             throw new InvalidCredentialsException("Refresh token expirado ou revogado");
         }
 
@@ -41,8 +47,12 @@ public class RefreshTokenUseCase {
         refreshTokenRepository.save(stored.revoke());
 
         User user = userRepository.findById(stored.getUserId())
-                .orElseThrow(() -> new InvalidCredentialsException("Usuário do refresh token não existe mais"));
+                .orElseThrow(() -> {
+                    log.warn("Refresh token válido, mas usuário não existe mais: {}", stored.getUserId());
+                    return new InvalidCredentialsException("Usuário do refresh token não existe mais");
+                });
 
+        log.info("Token renovado com sucesso para o usuário: {}", user.getEmail());
         return tokenIssuer.issueFor(user);
     }
 }

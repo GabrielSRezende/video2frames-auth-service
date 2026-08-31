@@ -10,5 +10,17 @@ services:
     volumes:
       - authdb-data:/var/lib/postgresql/data
 
+  auth-service:
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:postgresql://authdb:5432/authdb
+      DB_USER: authdb
+      DB_PASSWORD: authdb
+      LOG_FORMAT: ${LOG_FORMAT:-}
+    depends_on:
+      - authdb
+
 volumes:
   authdb-data:

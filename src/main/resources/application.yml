@@ -15,6 +15,26 @@ spring:
 server:
   port: ${SERVER_PORT:8081}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    br.com.video2frames: ${LOG_LEVEL:INFO}
+  structured:
+    format:
+      console: ${LOG_FORMAT:}
+
 app:
   jwt:
     secret: ${JWT_SECRET:mDMUd7hxqi87Jab3PEoexGDbKUqx548RyntWmtrZJqJ}

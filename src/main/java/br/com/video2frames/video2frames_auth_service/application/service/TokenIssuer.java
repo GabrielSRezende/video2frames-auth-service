@@ -6,10 +6,12 @@ import br.com.video2frames.video2frames_auth_service.application.port.TokenHashe
 import br.com.video2frames.video2frames_auth_service.domain.model.RefreshToken;
 import br.com.video2frames.video2frames_auth_service.domain.model.User;
 import br.com.video2frames.video2frames_auth_service.domain.repository.RefreshTokenRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 
+@Slf4j
 @Component
 public class TokenIssuer {
 
@@ -36,6 +38,7 @@ public class TokenIssuer {
                 OffsetDateTime.now().plus(tokenGenerator.refreshTokenExpiration()));
         refreshTokenRepository.save(refreshToken);
 
+        log.info("Par de tokens emitido para o usuário: {}", user.getEmail());
         return new AuthResult(accessToken, rawRefreshToken, tokenGenerator.accessTokenExpirationSeconds());
     }
 }
