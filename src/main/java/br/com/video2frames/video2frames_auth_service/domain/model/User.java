@@ -3,11 +3,6 @@ package br.com.video2frames.video2frames_auth_service.domain.model;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-/**
- * Entidade de domínio. Não conhece JPA, Spring ou HTTP — só a regra de
- * negócio. A persistência é responsabilidade da camada de infraestrutura
- * (ver infrastructure.persistence).
- */
 public final class User {
 
     private final UUID id;
@@ -22,17 +17,14 @@ public final class User {
         this.createdAt = createdAt;
     }
 
-    /** Cria um novo usuário ainda não persistido (sem id). */
     public static User register(String email, String passwordHash) {
         return new User(null, email, passwordHash, OffsetDateTime.now());
     }
 
-    /** Reconstrói um usuário já existente, vindo da persistência. */
     public static User reconstruct(UUID id, String email, String passwordHash, OffsetDateTime createdAt) {
         return new User(id, email, passwordHash, createdAt);
     }
 
-    /** Retorna uma cópia com o id atribuído (usado logo após o primeiro save). */
     public User withId(UUID id) {
         return new User(id, this.email, this.passwordHash, this.createdAt);
     }

@@ -43,7 +43,6 @@ public class RefreshTokenUseCase {
             throw new InvalidCredentialsException("Refresh token expirado ou revogado");
         }
 
-        // Rotação: o token usado é revogado, mesmo que a emissão do novo falhe depois.
         refreshTokenRepository.save(stored.revoke());
 
         User user = userRepository.findById(stored.getUserId())
