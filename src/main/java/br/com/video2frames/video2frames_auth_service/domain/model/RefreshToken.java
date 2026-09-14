@@ -33,12 +33,10 @@ public final class RefreshToken {
         return new RefreshToken(id, userId, tokenHash, expiresAt, revoked, createdAt);
     }
 
-    /** Regra de negócio: um refresh token só é utilizável se não foi revogado e não expirou. */
     public boolean isValid() {
         return !revoked && expiresAt.isAfter(OffsetDateTime.now());
     }
 
-    /** Retorna uma cópia revogada — usado na rotação (a cada refresh, o token usado é revogado). */
     public RefreshToken revoke() {
         return new RefreshToken(id, userId, tokenHash, expiresAt, true, createdAt);
     }

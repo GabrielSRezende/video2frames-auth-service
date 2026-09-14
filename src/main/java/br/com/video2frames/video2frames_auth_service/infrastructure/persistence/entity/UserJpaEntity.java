@@ -9,11 +9,6 @@ import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-/**
- * Mapeamento JPA — vive só na infraestrutura. O domínio (domain.model.User)
- * não tem nenhuma anotação de framework; é o mapper quem converte entre os
- * dois mundos.
- */
 @Entity
 @Table(name = "users")
 public class UserJpaEntity {

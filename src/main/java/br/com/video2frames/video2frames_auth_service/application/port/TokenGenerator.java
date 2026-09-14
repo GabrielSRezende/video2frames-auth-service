@@ -10,6 +10,5 @@ public interface TokenGenerator {
 
     Duration refreshTokenExpiration();
 
-    /** Gera o valor cru (não-hasheado) do refresh token, de alta entropia. */
     String generateOpaqueRefreshToken();
 }

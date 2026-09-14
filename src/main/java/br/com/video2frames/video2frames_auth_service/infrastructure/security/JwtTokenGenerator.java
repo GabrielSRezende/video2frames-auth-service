@@ -59,12 +59,6 @@ public class JwtTokenGenerator implements TokenGenerator {
         return UUID.randomUUID() + "." + Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    /**
-     * Usado apenas pelo JwtAuthenticationFilter (infra), para validar o
-     * token recebido no header Authorization. Não faz parte do port
-     * TokenGenerator porque validação de request HTTP não é uma
-     * preocupação da camada de aplicação.
-     */
     public Optional<String> extractSubject(String token) {
         try {
             Claims claims = Jwts.parser()
