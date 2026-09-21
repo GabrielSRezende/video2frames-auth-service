@@ -19,8 +19,8 @@ O sistema completo é composto por 4 microserviços independentes, cada um em se
 
 ```mermaid
 flowchart LR
-    subgraph Auth["auth-service (8081) — este repositório"]
-        A1[Registro / Login / Refresh]
+    subgraph Auth["auth-service (8081), este repositório"]
+        A1["Registro / Login / Refresh"]
     end
 
     subgraph Video["video-service (8082)"]
@@ -36,8 +36,8 @@ flowchart LR
         N1[Envio de e-mail]
     end
 
-    S3[(S3 — vídeos e zips de frames)]
-    DB[(Postgres — authdb)]
+    S3[("S3: vídeos e zips de frames")]
+    DB[("Postgres: authdb")]
 
     User((Usuário)) -- "1 - registra-se / autentica-se" --> Auth
     Auth -- persiste --> DB
@@ -50,8 +50,8 @@ flowchart LR
     P1 -- baixa vídeo --> S3
     P1 -- extrai frames e zipa --> P1
     P1 -- envia zip --> S3
-    P1 -- sucesso --> Q2[["filas: video-processed +\nvideo-processed-notif"]]
-    P1 -- falha --> Q3[["filas: video-failed +\nvideo-failed-notif"]]
+    P1 -- sucesso --> Q2[["filas: video-processed +<br/>video-processed-notif"]]
+    P1 -- falha --> Q3[["filas: video-failed +<br/>video-failed-notif"]]
     Q2 --> V2
     Q3 --> V2
     Q3 --> N1
@@ -66,15 +66,15 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph Infra["infrastructure"]
-        Ctrl[AuthController<br/>POST /api/auth/register|login|refresh]
+        Ctrl["AuthController<br/>POST /api/auth/register, login, refresh"]
         Filter[JwtAuthenticationFilter]
         SecConf[SecurityConfig]
-        JwtGen[JwtTokenGenerator<br/>implements TokenGenerator]
-        BCrypt[BCryptPasswordHasher<br/>implements PasswordHasher]
-        Sha[Sha256TokenHasher<br/>implements TokenHasher]
+        JwtGen["JwtTokenGenerator<br/>implements TokenGenerator"]
+        BCrypt["BCryptPasswordHasher<br/>implements PasswordHasher"]
+        Sha["Sha256TokenHasher<br/>implements TokenHasher"]
         UserAdapter[UserRepositoryAdapter]
         RefreshAdapter[RefreshTokenRepositoryAdapter]
-        JPA[(Postgres via Spring Data JPA<br/>+ Flyway migrations)]
+        JPA[("Postgres via Spring Data JPA<br/>+ Flyway migrations")]
     end
 
     subgraph App["application"]
@@ -82,14 +82,14 @@ flowchart TB
         LoginUC[LoginUseCase]
         RefreshUC[RefreshTokenUseCase]
         Issuer[TokenIssuer]
-        Ports{{"ports: PasswordHasher,\nTokenGenerator, TokenHasher"}}
+        Ports{{"ports: PasswordHasher,<br/>TokenGenerator, TokenHasher"}}
     end
 
     subgraph Dom["domain"]
         UserModel[User]
         RefreshModel[RefreshToken]
-        Repos{{"repositories: UserRepository,\nRefreshTokenRepository"}}
-        Exc[InvalidCredentialsException /\nEmailAlreadyRegisteredException]
+        Repos{{"repositories: UserRepository,<br/>RefreshTokenRepository"}}
+        Exc["InvalidCredentialsException /<br/>EmailAlreadyRegisteredException"]
     end
 
     Ctrl --> RegisterUC
@@ -188,6 +188,10 @@ Todas têm valor padrão definido em `application.yml`, sobrescrevíveis via var
 | `LOG_LEVEL_ROOT` | `INFO` | Nível de log raiz |
 | `LOG_LEVEL` | `INFO` | Nível de log do pacote `br.com.video2frames` |
 | `LOG_FORMAT` | *(vazio = texto)* | `ecs` habilita logging estruturado em JSON, veja [Logging](#logging) |
+
+## Collection do Postman
+
+A pasta `postman/` tem uma collection pronta para importar (Postman > Import > `postman/video2frames-auth-service.postman_collection.json`). Ela traz cadastro, login, renovação de token e health check. O login salva o `accessToken` e o `refreshToken` nas variáveis da coleção. O e-mail e a senha de teste ficam nas variáveis `email` e `password`.
 
 ## Testes
 

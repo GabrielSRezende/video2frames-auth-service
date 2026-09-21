@@ -1,0 +1,146 @@
+{
+  "info": {
+    "name": "video2frames-auth-service",
+    "description": "Requisições do auth-service (porta 8081). Suba o ambiente antes (video2frames-infra-ops, Modo 2) e execute na ordem: 1. Registrar, 2. Login, 3. Renovar token.\n\nO login guarda accessToken e refreshToken nas variáveis da coleção. Se quiser usar outro e-mail ou senha, altere as variáveis email e password na aba Variables da coleção. A senha precisa ter ao menos 6 caracteres.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "authUrl", "value": "http://localhost:8081" },
+    { "key": "email", "value": "professor@exemplo.com" },
+    { "key": "password", "value": "Senha@123" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Registrar usuário",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{authUrl}}/api/auth/register",
+          "host": ["{{authUrl}}"],
+          "path": ["api", "auth", "register"]
+        },
+        "description": "Cria o usuário. Retorna 201 sem corpo, ou 409 se o e-mail já estiver cadastrado."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Usuário criado (201) ou e-mail já cadastrado (409)', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{authUrl}}/api/auth/login",
+          "host": ["{{authUrl}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "Autentica e devolve accessToken, refreshToken e expiresIn. Os dois tokens ficam salvos nas variáveis da coleção. Credenciais inválidas retornam 401."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login retorna 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "if (pm.response.code === 200) {",
+              "  const body = pm.response.json();",
+              "  pm.collectionVariables.set('accessToken', body.accessToken);",
+              "  pm.collectionVariables.set('refreshToken', body.refreshToken);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Renovar token",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{authUrl}}/api/auth/refresh",
+          "host": ["{{authUrl}}"],
+          "path": ["api", "auth", "refresh"]
+        },
+        "description": "Troca o refreshToken por um novo par de tokens. Execute depois do login."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Renovação retorna 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "if (pm.response.code === 200) {",
+              "  const body = pm.response.json();",
+              "  pm.collectionVariables.set('accessToken', body.accessToken);",
+              "  pm.collectionVariables.set('refreshToken', body.refreshToken);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{authUrl}}/actuator/health",
+          "host": ["{{authUrl}}"],
+          "path": ["actuator", "health"]
+        },
+        "description": "Estado do serviço. Deve retornar status UP."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Serviço no ar', function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.json().status).to.eql('UP');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
